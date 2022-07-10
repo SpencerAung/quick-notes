@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import NoteContext from './NoteContext';
-import { clearNotes, NOTES } from './notes';
+import { clearNotes, getDefaultBucketName } from './notes';
 import Note from './Note';
 import { Note as NoteType } from './types';
 
@@ -8,7 +8,7 @@ const Inbox = () => {
   const [notes, setNotes] = useContext(NoteContext);
   const handleClearNotes = () => {
 
-    clearNotes(NOTES);
+    clearNotes(getDefaultBucketName());
     setNotes([]);
   }
 
