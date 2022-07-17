@@ -4,7 +4,6 @@ import { Store } from "./types";
 const STORE_KEY = 'store';
 
 export const initialState = {
-  selectedBucket: 'inbox',
   buckets: {
     inbox: createBucket('inbox')
   }
@@ -52,7 +51,7 @@ export function noteReducer(store: Store, action: { [key: string]: any }) {
     case 'DELETE_BUCKET': {
       const updated = {
         ...store,
-        buckets: deleteBucket(store.buckes, action.bucketName)
+        buckets: deleteBucket(store.buckets, action.bucketName)
       }
       saveToStorage(updated);
       return updated;

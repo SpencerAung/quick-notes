@@ -1,7 +1,6 @@
 import { useReducer } from 'react';
-import Compose from './Compose';
 import CreateBucket from './CreateBucket';
-import Bucket from './Bucket';
+import Buckets from './Buckets';
 import NoteContext from './NoteContext';
 import { noteReducer, initialState, initializer } from './NoteReducer';
 
@@ -13,16 +12,11 @@ function App() {
     <NoteContext.Provider value={reducer}>
       <div className={`font-sans bg-gray-900 text-white h-screen`}>
         <div className={`container mx-auto p-4 h-full w-auto flex flex-col`}>
-          <h1 className={`text-lg font-semibold mb-4`}>Quick Notes</h1>
-          <div className="mb-4">
-            <Compose />
+          <div className="flex justify-between mb-4 items-center">
+            <h1 className={`text-lg font-semibold mb-4 flex-1`}>Quick Notes</h1>
+              <CreateBucket />
           </div>
-          <div className={`flex flex-row flex-1`}>
-            <Bucket />
-          </div>
-          <div className="flex justify-end self-end ">
-            <CreateBucket />
-          </div>
+          <Buckets />
         </div>
       </div>
     </NoteContext.Provider>

@@ -37,10 +37,11 @@ export function isBucketNameExists(buckets: Buckets, bucketName: string): boolea
 
 export function deleteBucket(buckets: Buckets, bucketName: string): Buckets {
   if (isBucketNameExists(buckets, bucketName)) {
-    return {
-      ...buckets,
-      [bucketName]: undefined
-    }
+    const newBuckets = { ...buckets }
+
+    delete newBuckets[bucketName];
+
+    return newBuckets;
   }
 
   return buckets;

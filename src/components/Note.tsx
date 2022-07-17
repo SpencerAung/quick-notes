@@ -22,7 +22,7 @@ const Note: React.FC<{ note: NoteType }> = ({ note }) => {
         {note.body}
       </div>
       <div className="flex flex-row justify-end">
-        <button onClick={() => handleRemove(note.id)}><IoClose /></button>
+        <button onClick={() => handleRemove(note.id)} className="text-gray-500"><IoClose /></button>
       </div>
     </div>
   )

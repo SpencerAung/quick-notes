@@ -21,7 +21,7 @@ const [, dispatch] = useContext(NoteContext);
   return (
     <div>
       <form onSubmit={handleCreateBucket}>
-        <input type="text" className="text-black" name="bucketName" placeholder="Backet name" />
+        <input type="text" className="max-h-16 p-2 bg-gray-800 text-white" name="bucketName" placeholder="Bucket name" autoComplete="off"/>
         <button
           className="bg-indigo-500 text-white px-4 py-2"
           >Create Bucket</button>

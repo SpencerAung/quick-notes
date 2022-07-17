@@ -15,5 +15,5 @@ export type Buckets = {
   [key: string]: Bucket;
 }
 export interface Store {
-  [key: string]: any;
+  buckets: Buckets
 }
