@@ -2,15 +2,17 @@ import React, { useContext } from 'react'
 import { Note as NoteType } from './types'
 import { IoClose } from 'react-icons/io5'
 import NoteContext from './NoteContext';
-import { removeNote, getNotes, getDefaultBucketName } from './notes';
 
 const Note: React.FC<{ note: NoteType }> = ({ note }) => {
-  const [,setNotes ] = useContext(NoteContext);
+  const [state,dispatch ] = useContext(NoteContext);
 
-  const handleRemove =(id: string) => {
-    const bucket = getDefaultBucketName();
-    removeNote(id, bucket);
-    setNotes(getNotes(bucket));
+  const handleRemove =(noteId: string) => {
+    const bucketName = state.selectedBucket;
+    dispatch({
+      type: 'REMOVE_NOTE',
+      bucketName,
+      noteId
+    })
   }
 
   return (

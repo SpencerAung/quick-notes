@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
 import Compose from './Compose';
 import CreateBucket from './CreateBucket';
 import Bucket from './Bucket';
 import NoteContext from './NoteContext';
-import { getDefaultBucketName, getNotes } from './notes';
+import { noteReducer, initialState, initializer } from './NoteReducer';
 
 function App() {
-  const noteState = useState(getNotes(getDefaultBucketName()));
+  // @ts-ignore
+  const reducer = useReducer(noteReducer, initialState, initializer);
 
   return (
-    <NoteContext.Provider value={noteState}>
+    <NoteContext.Provider value={reducer}>
       <div className={`font-sans bg-gray-900 text-white h-screen`}>
         <div className={`container mx-auto p-4 h-full w-auto flex flex-col`}>
           <h1 className={`text-lg font-semibold mb-4`}>Quick Notes</h1>

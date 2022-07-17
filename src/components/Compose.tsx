@@ -1,10 +1,11 @@
 import { useContext } from 'react';
-import { getSelectedBucketName,addNote, createNote, getNotes, getDefaultBucketName } from './notes';
 import NoteContext from './NoteContext';
+import { toArray } from './notes';
 
 function Compose() {
-
-  const [, setNotesContext] = useContext(NoteContext);
+  const [state, dispatch] = useContext(NoteContext);
+  const buckets = toArray(state.buckets);
+  const selectedBucket = state.selectedBucket;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -12,10 +13,13 @@ function Compose() {
     const formData = new FormData(form);
     const note = formData.get('note') as string;
 
-    const bucketName = getSelectedBucketName() || getDefaultBucketName();
+    const bucketName = state.selectedBucket;
 
-    addNote(createNote(note), bucketName);
-    setNotesContext(getNotes(bucketName));
+    dispatch({
+      type: 'ADD_NOTE',
+      bucketName,
+      note,
+    });
     form.reset();
 
   }
@@ -25,15 +29,13 @@ function Compose() {
     <div className={`w-full`}>
       <form id="note-form" onSubmit={handleSubmit}
         className={`w-full flex flex-row gap-1 bg-gray-800 text-gray-900`}>
-        <div>
-          <div>
-          <select>
-
-          </select>
-          </div>
-          <input type="text" name="note" placeholder="What's up?"
-            className={`w-full max-h-16 p-2`} />
-        </div>
+        <select className="w-1/5 min-w-fit" defaultValue={selectedBucket}>
+          {buckets.map(({ id, name }) => (
+            <option key={id} value={name} >{name}</option>
+          ))}
+        </select>
+        <input type="text" name="note" placeholder="What's up?"
+          className={`w-full max-h-16 p-2`} />
       </form>
     </div>
   )

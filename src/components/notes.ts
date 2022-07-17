@@ -1,120 +1,9 @@
-import { nanoid } from 'nanoid';
-import { Store, Bucket, Buckets, Note } from './types'
-
-const STORE_KEY = 'store';
-const DEFAULT_BUCKET_NAME = 'inbox';
-const SELECTED_BUCKET_NAME_KEY = 'selected_bucket_name';
-const BUCKETS_KEY = 'buckets';
+import { nanoid } from "nanoid";
+import { Bucket, Buckets, Note } from "./types";
 
 /**
-  * Store
-*/
-export function createStore(defaultBucket: Bucket): Store {
-  return {
-    [SELECTED_BUCKET_NAME_KEY]: defaultBucket.name,
-    [BUCKETS_KEY]: {
-      [defaultBucket.id]: defaultBucket,
-    }
-  }
-}
-
-export class MemStore {
-  private store: Store;
-
-  constructor(defaultStore?: Store) {
-    this.load(defaultStore);
-  }
-
-  private load(defaultStore?: Store) {
-    const localStore = localStorageGet(STORE_KEY);
-    if (!localStore) {
-      const store = defaultStore || createStore(createBucket(DEFAULT_BUCKET_NAME));
-      localStorageSet(STORE_KEY, store);
-      this.store = store;
-    } else {
-      this.store = localStore;
-    }
-  }
-
-  get(key: string) {
-    console.log('reading from memStore');
-    return this.store[key];
-  }
-
-  set(key: string, value: any) {
-    console.log('writing to memStore');
-    this.store[key] = value;
-    localStorageSet(STORE_KEY, this.store);
-  }
-}
-
-
-export function localStorageGet(key: string) {
-  console.log('reading from localStorage');
-  try {
-    return JSON.parse(localStorage.getItem(key));
-  } catch (e) {
-    return null;
-  }
-}
-export function localStorageSet(key: string, value: any) {
-  console.log('writing to localStorage');
-  return localStorage.setItem(key, JSON.stringify(value));
-}
-export function localStorageRemove(key: string) {
-  return localStorage.removeItem(key);
-}
-
-
-export function getStore() {
-  if (!window?.quicknotes?.store) {
-    window.quicknotes = {};
-    window.quicknotes.store = new MemStore();
-  }
-
-  return window.quicknotes.store;
-}
-/**
- * Bucket
- */
-export function setBuckets(buckets: Buckets) {
-  getStore().set(BUCKETS_KEY, buckets);
-}
-export function getBuckets(): Buckets {
-  return getStore().get(BUCKETS_KEY) || {};
-}
-
-export function getDefaultBucketName() {
-  return DEFAULT_BUCKET_NAME;
-}
-
-export function getSelectedBucketName() {
-  return getStore().get(SELECTED_BUCKET_NAME_KEY) || DEFAULT_BUCKET_NAME;
-}
-
-export function updateSelectedBucket(name: string) {
-  return getStore().get(SELECTED_BUCKET_NAME_KEY, name);
-}
-
-export function getBucketsArray(): Bucket[] {
-  const bucketsMap = getBuckets() || {};
-
-  const buckets = [];
-  Object.keys(bucketsMap).forEach((key) => {
-    buckets.push(bucketsMap[key]);
-  });
-
-  return buckets;
-}
-
-export function isBucketNameExists(bucketName: string) {
-  const buckets = getBucketsArray();
-
-  const filteredResult = buckets.filter(({ name }) => name === bucketName);
-
-  return filteredResult.length > 0;
-
-}
+  * NOTES
+  */
 
 export function createBucket(name: string): Bucket {
   return ({
@@ -124,34 +13,6 @@ export function createBucket(name: string): Bucket {
     notes: []
   });
 }
-
-export function addBucket(bucket: Bucket) {
-  const buckets = getBuckets();
-
-  buckets[bucket.id] = bucket;
-
-  setBuckets(buckets);
-}
-
-export function getBucketByName(bucketName: string): Bucket {
-  const buckets = getBucketsArray();
-  const filteredResult = (buckets || []).filter(({ name }) => name === bucketName);
-
-  return filteredResult?.[0];
-}
-
-export function setBucket(id: string, bucket: Bucket) {
-  const buckets = getBuckets();
-
-  buckets[id] = bucket;
-  setBuckets(buckets);
-}
-
-
-/**
-  * Notes
-  *
-  */
 export function createNote(note: string): Note {
   return ({
     id: nanoid(),
@@ -159,51 +20,94 @@ export function createNote(note: string): Note {
     timestamp: new Date().getTime()
   })
 }
-export function addNote(note: Note, bucketName: string) {
-  const bucket = getBucketByName(bucketName);
+export function addBucket(buckets: Buckets, bucket: Bucket): Buckets {
+  if (isBucketNameExists(buckets, bucket.name) || !bucket?.name) {
+    return buckets;
+  }
 
-  if (bucket) {
-    bucket.notes = [...bucket.notes, note];
-
-    setBucket(bucket.id, bucket);
+  return {
+    ...buckets,
+    [bucket.name]: bucket
   }
 }
 
-export function getNotes(bucketName: string): Note[] {
-  const bucket = getBucketByName(bucketName);
-
-  return bucket?.notes || [];
+export function isBucketNameExists(buckets: Buckets, bucketName: string): boolean {
+  return !!buckets[bucketName];
 }
 
-export function clearNotes(bucketName: string) {
-  const bucket = getBucketByName(bucketName);
-  if (bucket) {
-    bucket.notes = [];
-    setBucket(bucket.id, bucket);
+export function deleteBucket(buckets: Buckets, bucketName: string): Buckets {
+  if (isBucketNameExists(buckets, bucketName)) {
+    return {
+      ...buckets,
+      [bucketName]: undefined
+    }
+  }
+
+  return buckets;
+}
+
+export function overrideBucket(buckets: Buckets, bucket: Bucket): Buckets {
+  return {
+    ...buckets,
+    [bucket.name]: bucket
   }
 }
 
-export function removeNote(removeId: string, bucketName: string) {
-  const bucket = getBucketByName(bucketName);
-  if (bucket) {
-    bucket.notes = (bucket.notes || []).filter(({ id }) => id !== removeId)
-    setBucket(bucket.id, bucket);
+export function addNote(bucket: Bucket, note: Note): Bucket {
+  return {
+    ...bucket,
+    notes: [...bucket.notes, note]
   }
 }
 
-export function getNote(id: string, bucketName: string) {
-  const bucket = getBucketByName(bucketName);
+export function removeNote(bucket: Bucket, removeId: string): Bucket {
+  const notes = (bucket.notes || []).filter(({ id }) => id !== removeId)
 
-  if (bucket) {
-    const filtered = (bucket.notes || []).filter((note) => note.id === id);
-
-    return filtered[0];
+  return {
+    ...bucket,
+    notes,
   }
 }
 
-export function moveNote(id: string, source: string, dest: string) {
-  const note = getNote(id, source);
+export function clearNotes(bucket: Bucket): Bucket {
+  return {
+    ...bucket,
+    notes: []
+  }
+}
 
-  removeNote(id, source);
-  addNote(note, dest);
+export function getNotes(bucket: Bucket): Note[] {
+  return bucket?.notes || []
+}
+
+export function getNote(bucket: Bucket, noteId: string): Note {
+  return getNotes(bucket).filter(({ id }) => id === noteId)?.shift();
+}
+
+export function getBucket(buckets: Buckets, bucketName: string): Bucket {
+  return buckets[bucketName]
+}
+
+export function moveNote(buckets: Buckets, sourceName: string, destName:  string, noteId: string) : Buckets {
+      const sourceBucket =getBucket(buckets, sourceName);
+      const destBucket = getBucket(buckets, destName);
+      const note = getNote(sourceBucket, noteId);
+
+      const newSource = removeNote(sourceBucket, noteId);
+      const newDest = addNote(destBucket, note);
+
+      return {
+        ...buckets,
+        [sourceName]: newSource,
+        [destName]: newDest
+      }
+}
+
+export function toArray(bucketsMap: Buckets): Bucket[] {
+  const buckets = [];
+  Object.keys(bucketsMap).forEach((key) => {
+    buckets.push(bucketsMap[key]);
+  });
+
+  return buckets;
 }
