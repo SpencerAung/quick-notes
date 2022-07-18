@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { getBorderColorClassName } from "./colors";
 import { Bucket, Buckets, Note } from "./types";
 
 /**
@@ -17,6 +18,7 @@ export function createNote(note: string): Note {
   return ({
     id: nanoid(),
     body: note,
+    borderColorClassName: getBorderColorClassName(),
     timestamp: new Date().getTime()
   })
 }
@@ -62,7 +64,7 @@ export function addNote(bucket: Bucket, note: Note): Bucket {
 }
 
 export function removeNote(bucket: Bucket, removeId: string): Bucket {
-  const notes = (bucket.notes || []).filter(({ id }) => id !== removeId)
+  const notes = (bucket?.notes || []).filter(({ id }) => id !== removeId)
 
   return {
     ...bucket,
@@ -89,19 +91,19 @@ export function getBucket(buckets: Buckets, bucketName: string): Bucket {
   return buckets[bucketName]
 }
 
-export function moveNote(buckets: Buckets, sourceName: string, destName:  string, noteId: string) : Buckets {
-      const sourceBucket =getBucket(buckets, sourceName);
-      const destBucket = getBucket(buckets, destName);
-      const note = getNote(sourceBucket, noteId);
+export function moveNote(buckets: Buckets, sourceName: string, destName: string, noteId: string): Buckets {
+  const sourceBucket = getBucket(buckets, sourceName);
+  const destBucket = getBucket(buckets, destName);
+  const note = getNote(sourceBucket, noteId);
 
-      const newSource = removeNote(sourceBucket, noteId);
-      const newDest = addNote(destBucket, note);
+  const newSource = removeNote(sourceBucket, noteId);
+  const newDest = addNote(destBucket, note);
 
-      return {
-        ...buckets,
-        [sourceName]: newSource,
-        [destName]: newDest
-      }
+  return {
+    ...buckets,
+    [sourceName]: newSource,
+    [destName]: newDest
+  }
 }
 
 export function toArray(bucketsMap: Buckets): Bucket[] {

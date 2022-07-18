@@ -72,7 +72,7 @@ export function noteReducer(store: Store, action: { [key: string]: any }) {
     case 'REMOVE_NOTE': {
       const updated = {
         ...store,
-        buckets: overrideBucket(store.buckets, removeNote(store.buckets[action.bucketName], action.noteId))
+        buckets: overrideBucket(store?.buckets, removeNote(store?.buckets[action?.bucketName], action.noteId))
       }
       saveToStorage(updated);
       return updated;

@@ -1,6 +1,7 @@
 export interface Note {
   id: string;
   body: string;
+  borderColorClassName: string;
   timestamp: number;
 }
 

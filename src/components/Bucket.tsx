@@ -29,7 +29,7 @@ const Bucket = ({ bucket }) => {
       </div>
       <div className="flex flex-col gap-2 w-full">
         {(notes || []).map((note: NoteType) => (
-          <Note key={note.id} note={note} />
+          <Note key={note.id} note={note} bucketName={name} />
         ))}
         <Compose bucket={bucket} />
       </div>
