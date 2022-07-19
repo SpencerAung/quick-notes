@@ -3,13 +3,13 @@ import { Note as NoteType } from './types'
 import { IoClose } from 'react-icons/io5'
 import NoteContext from './NoteContext';
 
-const Note: React.FC<{ note: NoteType, bucketName: string }> = ({ note, bucketName }) => {
+const Note: React.FC<{ note: NoteType, bucketId: string }> = ({ note, bucketId }) => {
   const [, dispatch] = useContext(NoteContext);
 
   const handleRemove = (noteId: string) => {
     dispatch({
       type: 'REMOVE_NOTE',
-      bucketName,
+      bucketId,
       noteId
     })
   }
@@ -17,7 +17,7 @@ const Note: React.FC<{ note: NoteType, bucketName: string }> = ({ note, bucketNa
   return (
     <div draggable
       data-id={note.id}
-      data-bucket={bucketName}
+      data-bucket={bucketId}
       className={`w-full border ${note?.borderColorClassName} p-4 flex flex-row justify-between items-start gap-4`}>
       <div>
         {note.body}

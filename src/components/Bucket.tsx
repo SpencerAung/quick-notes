@@ -1,21 +1,23 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import NoteContext from './NoteContext';
 import Note from './Note';
 import { Note as NoteType } from './types';
 import Compose from './Compose';
 import { IoTrash } from 'react-icons/io5';
+import { MdEdit } from 'react-icons/md';
 import { AppContext } from './App';
 
 const Bucket = ({ bucket }) => {
   const [isDropZoneActive, setDropZoneActive] = useState(false);
+  const [isEditEnable, setIsEditEnable] = useState(false);
   const [, noteDispatch] = useContext(NoteContext);
   const [appState, appDispatch] = useContext(AppContext);
-  const { notes = [], name } = bucket;
+  const { notes = [], id, name } = bucket;
 
   const handleDeleteBucket = () => {
     noteDispatch({
       type: 'DELETE_BUCKET',
-      bucketName: name
+      bucketId: id
     })
   }
   const handleDragEnter = () => {
@@ -28,8 +30,8 @@ const Bucket = ({ bucket }) => {
     e.preventDefault();
     noteDispatch({
       type: 'MOVE_NOTE',
-      source: appState?.drag?.sourceBucketName,
-      dest: name,
+      source: appState?.drag?.sourceBucketId,
+      dest: id,
       noteId: appState?.drag?.noteId,
     });
     appDispatch({
@@ -37,12 +39,41 @@ const Bucket = ({ bucket }) => {
     });
   }
 
-  const showDropZone = appState.isDragStarted && appState?.drag.sourceBucketName !== name;
+  const showDropZone = appState.isDragStarted && appState?.drag.sourceBucketId !== id;
+
+  const handleBucketRename = (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const newBucketName = form.get('newBucketName');
+    console.log('newBucketName', newBucketName);
+    noteDispatch({
+      type: 'RENAME_BUCKET',
+      newBucketName,
+      bucketId: id
+    });
+    setIsEditEnable(false);
+  }
+
+  useEffect(() => {
+    if (isEditEnable) {
+      document.getElementById('newBucketName').focus();
+    }
+  }, [isEditEnable]);
 
   return (
     <div className={`p-2 bg-gray-800`}>
       <div className="w-full mb-2 flex flex-row justify-between items-center">
-        <h2>{name}</h2>
+        <h2 className="flex items-center">
+          {isEditEnable ? (
+            <form onSubmit={handleBucketRename}>
+              <input id="newBucketName" name="newBucketName" className="px-2 border bg-gray-700 text-white w-11/12" defaultValue={name} />
+            </form>
+          ) : (<span>{name}</span>
+          )}
+          <button className="ml-2 text-gray-500 opacity-0 hover:opacity-100"
+            onClick={() => setIsEditEnable(true)}
+          ><MdEdit /></button>
+        </h2>
         <button
           className="px-2 py-1 text-gray-500"
           onClick={handleDeleteBucket}
@@ -52,7 +83,7 @@ const Bucket = ({ bucket }) => {
       </div>
       <div className="flex flex-col gap-2 w-full">
         {(notes || []).map((note: NoteType) => (
-          <Note key={note.id} note={note} bucketName={name} />
+          <Note key={note.id} note={note} bucketId={id} />
         ))}
         {showDropZone && (
           <div

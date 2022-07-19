@@ -13,7 +13,7 @@ function Compose({ bucket }) {
 
     dispatch({
       type: 'ADD_NOTE',
-      bucketName: bucket.name,
+      bucketId: bucket.id,
       note,
     });
     form.reset();

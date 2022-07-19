@@ -1,11 +1,12 @@
-import { addBucket, addNote, clearNotes, createBucket, createNote, deleteBucket, moveNote, overrideBucket, removeNote } from "./notes";
+import { addBucket, addNote, clearNotes, createBucket, createNote, deleteBucket, moveNote, overrideBucket, removeNote, renameBucket } from "./notes";
 import { Store } from "./types";
 
 const STORE_KEY = 'store';
 
+const inboxBucket = createBucket('Inbox');
 export const initialState = {
   buckets: {
-    inbox: createBucket('inbox')
+    [inboxBucket.id]: inboxBucket,
   }
 }
 
@@ -36,6 +37,7 @@ export function saveToStorage(store: Store) {
 }
 
 export function noteReducer(store: Store, action: { [key: string]: any }) {
+  console.log(store,action);
   switch (action.type) {
     case 'ADD_BUCKET': {
       const bucket = createBucket(action.bucketName);
@@ -47,22 +49,31 @@ export function noteReducer(store: Store, action: { [key: string]: any }) {
       saveToStorage(updated);
       return updated;
     }
+    case 'RENAME_BUCKET': {
+      const updated = {
+        ...store,
+        buckets: renameBucket(store.buckets, action.bucketId, action.newBucketName),
+      }
+      console.log('updated', updated);
+      saveToStorage(updated);
+      return updated;
+    }
     case 'DELETE_BUCKET': {
       const updated = {
         ...store,
-        buckets: deleteBucket(store.buckets, action.bucketName)
+        buckets: deleteBucket(store.buckets, action.bucketId)
       }
       saveToStorage(updated);
       return updated;
     }
     case 'ADD_NOTE': {
       const {buckets } = store;
-      const { bucketName, note } = action;
+      const { bucketId, note } = action;
       const updated = {
         ...store,
         buckets: {
           ...buckets,
-          [bucketName]: addNote(buckets[bucketName], createNote(note))
+          [bucketId]: addNote(buckets[bucketId], createNote(note))
         }
       }
       saveToStorage(updated);
@@ -71,7 +82,7 @@ export function noteReducer(store: Store, action: { [key: string]: any }) {
     case 'REMOVE_NOTE': {
       const updated = {
         ...store,
-        buckets: overrideBucket(store?.buckets, removeNote(store?.buckets[action?.bucketName], action.noteId))
+        buckets: overrideBucket(store?.buckets, removeNote(store?.buckets[action?.bucketId], action.noteId))
       }
       saveToStorage(updated);
       return updated;
@@ -79,7 +90,7 @@ export function noteReducer(store: Store, action: { [key: string]: any }) {
     case 'CLEAR_NOTES': {
       const updated = {
         ...store,
-        buckets: overrideBucket(store.buckets, clearNotes(store.buckets[action.bucketName]))
+        buckets: overrideBucket(store.buckets, clearNotes(store.buckets[action.bucketId]))
       }
 
       saveToStorage(updated);

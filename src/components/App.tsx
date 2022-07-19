@@ -10,7 +10,7 @@ function App() {
   // @ts-ignore
   const reducer = useReducer(noteReducer, initialState, initializer);
   const appReducer = useReducer(AppReducer, {});
-  const [,appDispatch] = appReducer;
+  const [, appDispatch] = appReducer;
 
   useEffect(() => {
     function allowDrop(e) {
@@ -21,22 +21,15 @@ function App() {
       appDispatch({
         type: 'NOTE_DRAG_START',
         note: e.target.dataset.id,
-        sourceBucketName: e.target.dataset.bucket,
-      });
-    }
-    function handleDragEnd(e) {
-      appDispatch({
-        type: 'NOTE_DRAG_END'
+        sourceBucketId: e.target.dataset.bucket,
       });
     }
     document.addEventListener('dragover', allowDrop);
     document.addEventListener('dragstart', handleDragStart);
-    document.addEventListener('dragend', handleDragEnd);
 
     return () => {
       document.removeEventListener('dragover', allowDrop);
-    document.removeEventListener('dragstart', handleDragStart);
-    document.removeEventListener('dragend', handleDragEnd);
+      document.removeEventListener('dragstart', handleDragStart);
     }
   }, []);
 

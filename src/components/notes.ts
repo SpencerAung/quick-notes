@@ -23,25 +23,34 @@ export function createNote(note: string): Note {
   })
 }
 export function addBucket(buckets: Buckets, bucket: Bucket): Buckets {
-  if (isBucketNameExists(buckets, bucket.name) || !bucket?.name) {
+  if (isBucketExists(buckets, bucket.id) || !bucket?.id) {
     return buckets;
   }
 
   return {
     ...buckets,
-    [bucket.name]: bucket
+    [bucket.id]: bucket
   }
 }
 
-export function isBucketNameExists(buckets: Buckets, bucketName: string): boolean {
-  return !!buckets[bucketName];
+export function isBucketExists(buckets: Buckets, bucketId: string): boolean {
+  return !!buckets[bucketId];
 }
 
-export function deleteBucket(buckets: Buckets, bucketName: string): Buckets {
-  if (isBucketNameExists(buckets, bucketName)) {
+export function renameBucket(buckets: Buckets, bucketId: string, newBucketName: string): Buckets {
+  if (isBucketExists(buckets, bucketId)) {
+    const oldBucket = buckets[bucketId];
+    return overrideBucket(buckets, { ...oldBucket, name: newBucketName });
+  }
+
+  return buckets;
+}
+
+export function deleteBucket(buckets: Buckets, bucketId: string): Buckets {
+  if (isBucketExists(buckets, bucketId)) {
     const newBuckets = { ...buckets }
 
-    delete newBuckets[bucketName];
+    delete newBuckets[bucketId];
 
     return newBuckets;
   }
@@ -52,7 +61,7 @@ export function deleteBucket(buckets: Buckets, bucketName: string): Buckets {
 export function overrideBucket(buckets: Buckets, bucket: Bucket): Buckets {
   return {
     ...buckets,
-    [bucket.name]: bucket
+    [bucket.id]: bucket
   }
 }
 
@@ -87,8 +96,8 @@ export function getNote(bucket: Bucket, noteId: string): Note {
   return getNotes(bucket).filter(({ id }) => id === noteId)?.shift();
 }
 
-export function getBucket(buckets: Buckets, bucketName: string): Bucket {
-  return buckets[bucketName]
+export function getBucket(buckets: Buckets, bucketId: string): Bucket {
+  return buckets[bucketId]
 }
 
 export function moveNote(buckets: Buckets, sourceName: string, destName: string, noteId: string): Buckets {

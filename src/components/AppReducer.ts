@@ -8,7 +8,7 @@ export function AppReducer(state, action) {
         isDragStarted: true,
         drag: {
           noteId: action.note,
-          sourceBucketName: action.sourceBucketName,
+          sourceBucketId: action.sourceBucketId,
         }
       };
     }
