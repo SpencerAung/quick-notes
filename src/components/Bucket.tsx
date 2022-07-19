@@ -1,20 +1,43 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import NoteContext from './NoteContext';
 import Note from './Note';
 import { Note as NoteType } from './types';
 import Compose from './Compose';
 import { IoTrash } from 'react-icons/io5';
+import { AppContext } from './App';
 
 const Bucket = ({ bucket }) => {
-  const [, dispatch] = useContext(NoteContext);
+  const [isDropZoneActive, setDropZoneActive] = useState(false);
+  const [, noteDispatch] = useContext(NoteContext);
+  const [appState, appDispatch] = useContext(AppContext);
   const { notes = [], name } = bucket;
-  const handleDeleteBucket = () => {
 
-    dispatch({
+  const handleDeleteBucket = () => {
+    noteDispatch({
       type: 'DELETE_BUCKET',
       bucketName: name
     })
   }
+  const handleDragEnter = () => {
+    setDropZoneActive(true);
+  }
+  const handleDragLeave = () => {
+    setDropZoneActive(false);
+  }
+  const handleDrop = (e) => {
+    e.preventDefault();
+    noteDispatch({
+      type: 'MOVE_NOTE',
+      source: appState?.drag?.sourceBucketName,
+      dest: name,
+      noteId: appState?.drag?.noteId,
+    });
+    appDispatch({
+      type: 'NOTE_DROPPED',
+    });
+  }
+
+  const showDropZone = appState.isDragStarted && appState?.drag.sourceBucketName !== name;
 
   return (
     <div className={`p-2 bg-gray-800`}>
@@ -31,6 +54,13 @@ const Bucket = ({ bucket }) => {
         {(notes || []).map((note: NoteType) => (
           <Note key={note.id} note={note} bucketName={name} />
         ))}
+        {showDropZone && (
+          <div
+            onDrop={handleDrop}
+            className={`border border-dashed w-full h-[100px] ${isDropZoneActive ? 'bg-slate-600' : 'bg-slate-700'}`}
+            onDragLeave={handleDragLeave}
+            onDragEnter={handleDragEnter} />
+        )}
         <Compose bucket={bucket} />
       </div>
 

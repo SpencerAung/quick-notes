@@ -16,6 +16,8 @@ const Note: React.FC<{ note: NoteType, bucketName: string }> = ({ note, bucketNa
 
   return (
     <div draggable
+      data-id={note.id}
+      data-bucket={bucketName}
       className={`w-full border ${note?.borderColorClassName} p-4 flex flex-row justify-between items-start gap-4`}>
       <div>
         {note.body}

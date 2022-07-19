@@ -36,7 +36,6 @@ export function saveToStorage(store: Store) {
 }
 
 export function noteReducer(store: Store, action: { [key: string]: any }) {
-  console.log('action', action);
   switch (action.type) {
     case 'ADD_BUCKET': {
       const bucket = createBucket(action.bucketName);
